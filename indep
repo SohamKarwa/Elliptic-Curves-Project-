@@ -1,0 +1,110 @@
+//generates set of elliptic curves S
+setgen := function()
+	setell := [];
+	for i:=1 to 3 do
+		count := 1;
+		while count le 200 do
+			polya := poly(Random(1,4*i),p);
+			polyb := poly(Random(1,6*i),p);
+			a := K!polya;
+			b :=K!polyb;
+			E:= EllipticCurve([a,b]);
+			if squarefree(a,b) and Discriminant(E) ne 0 then 
+			if #TwoTorsionSubgroup(E) eq 1 then 
+				setell := Append(setell,[a,b]);
+				count := count +1;
+			end if;
+			end if;
+		end while;
+	end for;
+	return setell;
+end function;
+
+S:= setgen();
+
+print "Set S generated"
+//splitting S into dimensions of Selmer groups 
+setgenpart := function(setell)
+	sizesel := [];
+	for i:=1 to #setell do 
+		E:= EllipticCurve(setell[i]);
+		sizesel[i] := #TwoSelmerGroup(E);
+	end for;
+	count := 0;
+	countl := [];
+	setn := []; 
+	dim := 0; 
+	diml := [];
+	while count lt #setell do 
+		countn := 0;
+		for i:=1 to #setell do 
+			if sizesel[i] eq 2^dim  then 
+			setn := Append(setn,setell[i]);
+			countn := countn + 1;
+			count := count +1;
+			if dim notin diml then 
+				diml := Append(diml,dim);
+			end if;
+			end if;
+		end for;
+		countl := Append(countl,countn);
+		dim := dim +1;
+	end while;
+	return setn,countl,diml;
+end function;
+
+//implementation of f_m_n 
+f_m_n := function(setn,countl, m, n)
+	denom := countl[m+1] * (2^(m)-1);
+	numer:=0;
+	pos :=0;
+	for i:=0 to m-1 do 
+		pos := pos + countl[i+1];
+	end for;
+	pos := pos + 1;
+	endpos := pos + countl[m+1];
+	for j:= pos to endpos do 
+		a:= setn[j][1];
+		b:= setn[j][2];
+		sh := shape(a,b);
+		for k:=1 to #sh do 
+			if sh[k] eq n then 
+				numer := numer +1;
+			end if;
+		end for;
+	end for;
+	return numer/denom;
+
+end function;
+
+
+//determining max shape 
+maxshape := 0;
+for i:=1 to #S do 
+	sh:= shape(S[i][1],S[i][2]);
+	sh;
+	for j:= 1 to #sh do 
+		if sh[j] ge maxshape then 
+			maxshape := sh[j];
+		end if;
+	end for;
+end for;
+
+
+
+//printing out results for f_m_n 
+
+
+S1, C, D := setgenpart(S);
+
+print "Set S partition found";
+
+for d in #D do
+	print "F_2 Dimension of Selmer Group is  " * IntegerToString(d);
+
+	for i:=1 to maxshape do 
+		print "f_m_n for n = " *IntegerToString(i) * "is :             " ;
+		f_m_n(S1,C,d,i);
+	end for;
+
+end for;

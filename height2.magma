@@ -1,0 +1,92 @@
+// E: y^2 = x^3 + ax + b 
+
+p:= 5; //prime 
+
+F := GF(p);
+K<t> := FunctionField(F);
+R<t> := PolynomialRing(F);
+
+
+
+//say height of elliptic curve is N 
+//first check that N is minimal i.e. a,b don't have degree at 
+//most 4M,6M for some M < N 
+
+
+findinitialheight := function(a,b)
+	dega := Degree(a);
+	degb := Degree(b);
+	minimal := true;
+	height := 1;
+	while minimal do 
+		if (dega le 4*height) and (degb le 6*height) then
+			minimal := false;
+		else 
+			height :=height +1;
+		end if;
+	end while;
+	return height;
+end function;
+
+
+//check minimality at finite places 
+//i.e. is there are irreducible polynomial f such that f^4 divides a 
+//f^6 divides b 
+
+minimisefinite := function(a,b)
+	changed := false;
+	if GreatestCommonDivisor(R!a,R!b) ne 1 then 
+		factorgcd := Factorization(GreatestCommonDivisor(R!a,R!b));
+		for i:=1 to #factorgcd do
+			if IsDivisibleBy(a,factorgcd[i][1]^4) and IsDivisibleBy(b,factorgcd[i][1]^6) then 
+				a:= a /factorgcd[i][1];
+				b:= b / factorgcd[i][1];
+				changed := true;
+			end if;
+		end for;
+	end if;
+	return changed,a,b;
+end function;
+
+
+
+//at this point have an equation that is minimal at all places 
+//so the numbers n_v are 0 everywhere except at infinity 
+
+tinversemap := hom<K ->K | K!t^(-1)>;
+
+
+infcoef := function(l)
+		count:= 1;
+		hyperfcoefinf := [];
+		for c in l do
+			hyperfcoefinf := Append(hyperfcoefinf,tinversemap(l[count]));
+			count :=count +1;
+		end for;
+		return hyperfcoefinf;
+	end function;
+
+
+
+
+findheight := function(a,b)
+	if a eq 0 and b eq 0 then 
+		return 0;
+	end if;
+	N := findinitialheight(a,b);
+	c,a,b := minimisefinite(a,b);
+	while c do
+		N := findinitialheight(a,b);
+		c,a,b := minimisefinite(a,b);
+	end while;
+	return N;
+end function;
+
+
+
+
+
+
+
+
+

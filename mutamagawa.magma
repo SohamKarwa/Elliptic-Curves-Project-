@@ -1,0 +1,53 @@
+
+
+mu := function(tam,n,sizeS)
+
+	if IsDefined(tam,n) then 
+		return tam[n]/sizeS;
+	else 
+		return 0;
+	end if;
+
+end function;
+
+tau_G := function(n) 
+	naturals := [0..1000];
+	R:= RealField();
+	autsize := map<Integers() -> RealField() | x :-> 1/(p^(x+1))>;
+	if n eq 0 then
+		return (p^2 +p)^(-1)/( (p^2+p)^(-1)+ InfiniteSum(autsize,1));
+	else 	
+		return (p^(-n-1))/( (p^2+p)^(-1)+ InfiniteSum(autsize,1));
+	end if;
+end function;
+
+for i in Keys(tamagawa) do 
+	 print "Shape:     " * IntegerToString(i) * "    Number:   " * IntegerToString(tamagawa[i]);
+	end for;
+
+
+ //set of elliptic curve with square-free discriminant (will probably be chosen at random)
+
+f := function(set,n)
+	numer := 0;
+	denom := 0;
+	for ell in set  do
+		sh,size := shape(ell[1],ell[2]);
+
+		denom := denom + size ;
+
+		//imple
+		for sha in sh do 
+			if sha eq n then 
+				numer := numer + 1;
+			end if;
+		end for;
+
+	end for;
+	return numer/denom;
+
+end function;
+
+
+
+

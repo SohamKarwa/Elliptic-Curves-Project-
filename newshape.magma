@@ -1,0 +1,115 @@
+shape := function(a,b)
+	E:= EllipticCurve([K!a, K!b]);
+	twodesc:= TwoDescent(E);
+	shs := [1..#twodesc];
+	count := 1;
+	for e in twodesc do
+	model := GenusOneModel(e);
+	hyperf := HyperellipticPolynomials(HyperellipticCurve(model));
+	hyperfcoef := Coefficients(hyperf);
+	// hyperfcoef; //list of coefficents of hyperf - polynomials in t 
+	hyperfcoefinf := infcoef(hyperfcoef); //uniformizer at infinity is s = 1/t 
+
+	P<x> := PolynomialRing(K); 
+
+	f:= P!hyperfcoefinf; //polynomial with t replaced by 1/t 
+	hf := HyperellipticCurve(f);
+	f:= GenusOneModel(f); //converts f into binary quartic form 
+	f,transform:= Minimise(f);
+	matinv := Inverse(transform);
+	matinv := Tuple(matinv);
+	matinv := matinv[2];
+
+
+	maxd := 0;
+
+	//finding n=maxd such that x^nM \in k[t]
+	for i:=1 to 2 do 
+		for j:=1 to 2 do 
+			d := Degree(matinv[i,j]);
+			if d gt maxd then 
+				maxd := d;
+			end if;
+		end for;
+	end for;
+
+	//make matrix 'integer' valued 
+
+	matinv := ScalarMatrix(2,t^maxd)*matinv;
+
+	// matrix is now in GL_2(k[t])
+	flip := Matrix(R,2,2,[0,1,1,0]); //flips rows or columns 
+
+	if matinv[1,1] eq 0 and matinv[2,1] eq 1 then 
+			matinv := flip*matinv;
+	elif matinv[1,1] eq 0 and matinv[1,2] eq 1 then 
+			matinv := matinv*flip;
+	end if; 
+	//matrix now has non-zero entry in (1,1) place 
+	while not IsDiagonal(matinv) do 
+		//need to perform Euclidean algorithm in first row
+		gcd := GreatestCommonDivisor(R!matinv[1,1],R!matinv[1,2]);
+ 		while not((matinv[1,1] eq 0) or  (matinv[1,2] eq 0)) do
+
+		if Degree(matinv[1,1]) ge Degree(matinv[1,2]) then
+			l:= matinv[1,1];
+			s:= matinv[1,2];
+		else 
+			l:=matinv[1,2];
+			s:=matinv[1,1];
+			matinv := matinv*flip; 
+		end if;
+		//now max degree element in matrix is in (1,1) place
+		//need to make sure l and s is not zero 
+		if  l ne 0 and s ne 0 then 
+			q,r := Quotrem(R!l,R!s);
+			P := Matrix(R,2,2,[1,0,-q,1]);
+			matinv := matinv*P;
+		else 
+			if matinv[1,1] eq 0 then 
+				matinv:= matinv*flip;
+			end if;
+			//non zero element in (1,1) place
+		end if;
+
+ 		end while;
+
+
+ 		if Degree(R!matinv[1,2]) gt Degree(matinv[1,1]) then
+ 			matinv := matinv*flip;
+ 		end if;
+
+ 		 k := Degree(R!matinv[1,1]);
+
+ 		 //matrix is upper lower triangular
+
+ 		//subtract K[t^{-1}] multiples of the first row from the 2nd row to force matinc[2,1] \in t^{k+1}K[t]
+ 		for i:=0 to k do 
+ 			if Coefficient(R!matinv[2,1],i) ne 0 then 
+ 				matinv[2,1] := matinv[2,1] - Coefficient(R!matinv[2,1],i)*t^(i);
+ 			end if;
+ 		end for;
+
+ 		//now m[2,1] \in t^(k+1)K[t]
+
+ 		//subtracting k[x]-multiples of the 2nd column from the first column forces m[2,1] to have degree less than the degree of m[2,2]
+
+ 		while Degree(R!matinv[2,1]) ge Degree(R!matinv[2,2]) do
+ 			matinv[2,1] := matinv[2,1] - Coefficient(R!matinv[2,1],Degree(R!matinv[2,1]))*t^(Degree(R!matinv[2,1]));
+ 		end while;
+
+ 		if k lt Degree(R!matinv[2,1]) then 
+ 			matinv := flip*matinv;
+ 		else 
+ 			matinv[2,1] := 0;
+ 		end if;
+
+	end while;
+
+	shs[count] := AbsoluteValue(Degree(R!matinv[2,2]) - Degree(R!matinv[1,1]));
+	count := count +1;
+	end for;
+	return shs,#shs;
+end function;
+
+

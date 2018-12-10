@@ -1,0 +1,36 @@
+// E: y^2 = x^3 + ax + b 
+
+p:= 5; //prime 
+
+F := GF(p);
+K<t> := FunctionField(F);
+R<t> := PolynomialRing(F);
+
+
+
+squarefree := function(a,b)
+	a := K!a;
+	b := K!b; 
+	E := EllipticCurve([a, b]);
+	N := findheight(R!a,R!b); //height
+	li := BadPlaces(E);
+	disc := Discriminant(E);
+	sf := true;
+	for i:=1 to #li do 
+		if li[i] ne 1/t then 
+			S := ValuationRing(K,R!li[i]);
+			if Valuation(S!disc) gt 1 then //square-free at finite places 
+				sf:= false;
+			end if;
+		end if;
+	end for; 
+
+	if Coefficient(R!disc,12*N) eq 0 and Coefficient(R!disc, 12*N-1) eq 0 then 
+		sf := false;
+	end if;
+
+	return sf;
+
+end function;
+
+

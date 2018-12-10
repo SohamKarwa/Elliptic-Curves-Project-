@@ -1,0 +1,436 @@
+p:=5;
+
+F:=GF(p);
+K<t> := FunctionField(F);
+R<t> := PolynomialRing(F);
+
+
+tinversemap := hom<K ->K | K!t^(-1)>;
+
+
+a:= K!t^4 +2;
+b:=K!1;
+E:= EllipticCurve([a,b]);
+s:= TwoDescent(E);
+
+
+
+//creates list of polys of degree heightMax
+polys := function(heightMax,p) //prime
+
+// loop through elements of F_p(t) s.t deg(a) <= heightMax and deg(b) <= heightMax
+//first loop through a
+
+// need a structure to store all polynomials
+//initialise structure of zeros
+zeros := [1..(heightMax+1)];
+for i:=1 to heightMax+1 do
+zeros[i] := 0;
+end for;
+polys := [zeros];
+//basic initialise of polys
+
+zerosdup := zeros;
+//initialise polys list
+for count:=1 to (heightMax + 1) do
+
+for poly in polys do
+for i:=1 to p-1 do
+polydup := poly;
+polydup[count] := i;
+if polydup ne zeros then
+polys := Append(polys,polydup);
+end if;
+end for;
+
+end for;
+end for;
+return polys;
+end function;
+//Function for height calculation
+
+
+//say height of elliptic curve is N
+//first check that N is minimal i.e. a,b don't have degree at
+//most 4M,6M for some M < N
+
+
+findinitialheight := function(a,b)
+dega := Degree(a);
+degb := Degree(b);
+minimal := true;
+height := 1;
+while minimal do
+if (dega le 4*height) and (degb le 6*height) then
+minimal := false;
+else
+height :=height +1;
+end if;
+end while;
+return height;
+end function;
+//check minimality at finite places
+//i.e. is there are irreducible polynomial f such that f^4 divides a
+//f^6 divides b
+
+minimisefinite := function(a,b)
+changed := false;
+if GreatestCommonDivisor(R!a,R!b) ne 1 then
+factorgcd := Factorization(GreatestCommonDivisor(R!a,R!b));
+for i:=1 to #factorgcd do
+if IsDivisibleBy(a,factorgcd[i][1]^4) and IsDivisibleBy(b,factorgcd[i][1]^6) then
+a:= a /factorgcd[i][1];
+b:= b / factorgcd[i][1];
+changed := true;
+end if;
+end for;
+end if;
+return changed,a,b;
+end function;
+
+
+
+
+//at this point have an equation that is minimal at all places
+//so the numbers n_v are 0 everywhere except at infinity
+
+
+findheight := function(a,b)
+if a eq 0 and b eq 0 then
+return 0;
+end if;
+N := findinitialheight(a,b);
+c,a,b := minimisefinite(a,b);
+while c do
+N := findinitialheight(a,b);
+c,a,b := minimisefinite(a,b);
+end while;
+return N;
+end function;
+
+
+
+//check elliptic curve is squarefree
+squarefree := function(a,b)
+a := K!a;
+b := K!b;
+E := EllipticCurve([a, b]);
+N := findheight(R!a,R!b); //height
+li := BadPlaces(E);
+disc := Discriminant(E);
+sf := true;
+for i:=1 to #li do
+if li[i] ne 1/t then
+S := ValuationRing(K,R!li[i]);
+if Valuation(S!disc) gt 1 then //square-free at finite places
+sf:= false;
+end if;
+end if;
+end for;
+
+if Coefficient(R!disc,12*N) eq 0 and Coefficient(R!disc, 12*N-1) eq 0 then
+sf := false;
+end if;
+
+return sf;
+
+end function;
+
+
+//replace t with s=1/t in poly
+infcoef := function(l)
+count:= 1;
+hyperfcoefinf := [];
+for c in l do
+hyperfcoefinf := Append(hyperfcoefinf,tinversemap(l[count]));
+count :=count +1;
+end for;
+return hyperfcoefinf;
+end function;
+//calculates shape of elements of elliptic curve PROBLEM
+shape := function(a,b)
+E:= EllipticCurve([K!a, K!b]);
+twodesc:= TwoDescent(E);
+shs := [1..#twodesc];
+count := 1;
+for e in twodesc do
+model := GenusOneModel(e);
+hyperf := HyperellipticPolynomials(HyperellipticCurve(model));
+hyperfcoef := Coefficients(hyperf);
+//hyperfcoef; //list of coefficents of hyperf - polynomials in t
+hyperfcoefinf := infcoef(hyperfcoef); //uniformizer at infinity is s = 1/t
+
+P<x> := PolynomialRing(K);
+
+f:= P!hyperfcoefinf; //polynomial with t replaced by 1/t
+hf := HyperellipticCurve(f);
+f:= GenusOneModel(f); //converts f into binary quartic form
+f,transform:= Minimise(f);
+matinv := Inverse(transform);
+matinv := Tuple(matinv);
+matinv := matinv[2];
+
+
+maxd := 0;
+
+//finding n=maxd such that x^nM \in k[t]
+for i:=1 to 2 do
+for j:=1 to 2 do
+d := Degree(matinv[i,j]);
+if d gt maxd then
+maxd := d;
+end if;
+end for;
+end for;
+
+//make matrix 'integer' valued
+
+matinv := ScalarMatrix(2,t^maxd)*matinv;
+
+// matrix is now in GL_2(k[t])
+flip := Matrix(R,2,2,[0,1,1,0]); //flips rows or columns
+
+if matinv[1,1] eq 0 and matinv[2,1] eq 1 then
+matinv := flip*matinv;
+elif matinv[1,1] eq 0 and matinv[1,2] eq 1 then
+matinv := matinv*flip;
+end if;
+/matrix now has non-zero entry in (1,1) place
+while not IsDiagonal(matinv) do
+//need to perform Euclidean algorithm in first row
+gcd := GreatestCommonDivisor(R!matinv[1,1],R!matinv[1,2]);
+ while not((matinv[1,1] eq 0) or  (matinv[1,2] eq 0)) do
+
+if Degree(matinv[1,1]) ge Degree(matinv[1,2]) then
+l:= matinv[1,1];
+s:= matinv[1,2];
+else
+l:=matinv[1,2];
+s:=matinv[1,1];
+matinv := matinv*flip;
+end if;
+//now max degree element in matrix is in (1,1) place
+//need to make sure l and s is not zero
+if  l ne 0 and s ne 0 then
+q,r := Quotrem(R!l,R!s);
+P := Matrix(R,2,2,[1,0,-q,1]);
+matinv := matinv*P;
+else
+if matinv[1,1] eq 0 then
+matinv:= matinv*flip;
+end if;
+//non zero element in (1,1) place
+end if;
+
+ end while;
+
+
+ if Degree(R!matinv[1,2]) gt Degree(matinv[1,1]) then
+ matinv := matinv*flip;
+ end if;
+
+
+  k := Degree(R!matinv[1,1]);
+
+  //matrix is upper lower triangular
+
+ //subtract K[t^{-1}] multiples of the first row from the 2nd row to force matinc[2,1] \in t^{k+1}K[t]
+ for i:=0 to k do
+ if Coefficient(R!matinv[2,1],i) ne 0 then
+ matinv[2,1] := matinv[2,1] - Coefficient(R!matinv[2,1],i)*t^(i);
+ end if;
+ end for;
+
+ //now m[2,1] \in t^(k+1)K[t]
+
+ //subtracting k[x]-multiples of the 2nd column from the first column forces m[2,1] to have degree less than the degree of m[2,2]
+
+ while Degree(R!matinv[2,1]) ge Degree(R!matinv[2,2]) do
+ matinv[2,1] := matinv[2,1] - Coefficient(R!matinv[2,1],Degree(R!matinv[2,1]))*t^(Degree(R!matinv[2,1]));
+ end while;
+
+ if k lt Degree(R!matinv[2,1]) then
+ matinv := flip*matinv;
+ else
+ matinv[2,1] := 0;
+ end if;
+
+end while;
+
+shs[count] := AbsoluteValue(Degree(R!matinv[2,2]) - Degree(R!matinv[1,1]));
+count := count +1;
+end for;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//creates random monic poly of degree n
+poly := function(n,p)
+po:= [1];
+for i:=1 to n do
+po:= Insert(po,1,Random(0,p-1));
+end for;
+return po;
+            
+
+
+
+
+
+mu := function(tam,n,sizeS)
+
+if IsDefined(tam,n) then
+return tam[n]/sizeS;
+else
+return 0;
+end if;
+
+end function;
+
+tau_G := function(n)
+naturals := [0..1000];
+R:= RealField();
+autsize := map<Integers() -> RealField() | x :-> 1/(p^(x+1))>;
+if n eq 0 then
+return (p^2 +p)^(-1)/( (p^2+p)^(-1)+ InfiniteSum(autsize,1));
+else
+return (p^(-n-1))/( (p^2+p)^(-1)+ InfiniteSum(autsize,1));
+end if;
+end function;
+ //set of elliptic curve with square-free discriminant (will probably be chosen at random)
+
+f := function(set,n)
+numer := 0;
+denom := 0;
+for ell in set  do
+sh,size := shape(ell[1],ell[2]);
+
+denom := denom + size ;
+
+//imple
+for sha in sh do
+if sha eq n then
+numer := numer + 1;
+end if;
+end for;
+
+end for;
+return numer/denom;
+
+end function;
+
+
+print "Set S generated";
+//splitting S into dimensions of Selmer groups
+setgenpart := function(setell)
+sizesel := [];
+for i:=1 to #setell do
+E:= EllipticCurve(setell[i]);
+sizesel[i] := #TwoSelmerGroup(E);
+end for;
+count := 0;
+setn := [];
+dim := 0;
+diml := [];
+dcount := AssociativeArray();
+while count lt #setell do
+countn := 0;
+for i:=1 to #setell do
+if sizesel[i] eq 2^dim  then
+setn := Append(setn,setell[i]);
+countn := countn + 1;
+count := count +1;
+if dim notin diml then
+diml := Append(diml,dim);
+end if;
+end if;
+end for;
+dcount[dim] = countn;
+dim := dim +1;
+dim;
+end while;
+return setn,dcount,diml;
+end function;
+
+
+//implementation of f_m_n
+f_m_n := function(setn,dcount, m, n)
+denom := dcount[m] * (2^(m)-1);
+numer:=0;
+pos :=0;
+for i:=0 to m-1 do
+if IsDefined(dcount,i) then 
+	pos := pos + dcount[i];
+end if;
+end for;
+pos := pos + 1;
+endpos := pos + dcount[m] - 1;
+for j:= pos to endpos do
+a:= setn[j][1];
+b:= setn[j][2];
+sh := shape(a,b);
+for k:=1 to #sh do
+if sh[k] eq n then
+numer := numer +1;
+end if;
+end for;
+end for;
+return numer/denom;
+
+end function;
+//determining max shape
+maxshape := 0;
+for i:=1 to #S do
+sh:= shape(S[i][1],S[i][2]);
+for j:= 1 to #sh do
+if sh[j] ge maxshape then
+maxshape := sh[j];
+print "max shape is " * IntegerToString(maxshape);
+end if;
+end for;
+end for;
+
+
+
+
+//printing out results for f_m_n
+
+
+S1, C, D := setgenpart(S);
+
+print "Set S partition found";
+print "Dimensions are ";
+D;
+S1;
+for key in Keys(C) do
+	print "dim is " * IntegerToString(key) * " and number of them is " *IntegerToString(C[key]);
+end for;
+for d in D do
+print "F_2 Dimension of Selmer Group is  " * IntegerToString(d);
+
+for i:=1 to maxshape do
+print "f_m_n for n = " *IntegerToString(i) * "is :             " ;
+if d ne 0 then
+f:=f_m_n(S1,C,d,i);
+f;
+else
+print "dimension is 0";
+end if;
+end for;
+end for;
+

@@ -1,0 +1,8 @@
+poly := function(n,p)
+	po:= [1];
+	for i:=1 to n do 
+		po:= Insert(po,1,Random(0,p-1));
+	end for;
+	return po;
+end function;
+

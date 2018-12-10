@@ -1,0 +1,24 @@
+p := 31;
+F := GF(p);
+K<t> := FunctionField(F);
+E:= EllipticCurve([t^2+2, 1]);
+D := Discriminant(E);
+LocalInformation(E);
+places := BadPlaces(E);
+places;
+sum := 0;
+sum;
+for place in places do 
+	Emin := MinimalModel(E,place);
+	Emin :=IntegralModel(Emin);
+	Dmin := Discriminant(Emin);
+	if Dmin ne D then 
+		nv := Dmin/D;
+		nv := Degree(nv);
+		nv := nv/12;
+		nv;
+		sum := sum + nv;
+	end if;
+end for;
+
+sum;

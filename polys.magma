@@ -1,0 +1,38 @@
+
+
+polys := function(heightMax,p) //prime 
+
+	// loop through elements of F_p(t) s.t deg(a) <= heightMax and deg(b) <= heightMax
+	//first loop through a 
+
+	// need a structure to store all polynomials 
+
+
+	//initialise structure of zeros 
+	zeros := [1..(heightMax+1)];
+	for i:=1 to heightMax+1 do
+		zeros[i] := 0;
+	end for;
+	polys := [zeros];
+	//basic initialise of polys 
+
+	zerosdup := zeros;
+	//initialise polys list 
+	for count:=1 to (heightMax + 1) do
+
+		for poly in polys do 
+			for i:=1 to p-1 do
+				polydup := poly;
+				polydup[count] := i;
+				if polydup ne zeros then 
+					polys := Append(polys,polydup);
+				end if;
+			end for;
+
+		end for;
+	end for;
+	return polys;
+end function;
+
+
+

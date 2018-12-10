@@ -1,0 +1,302 @@
+> Keys(tamagawa);
+{ 1, 3, 8, 12, 14, 15, 16, 19, 20, 21, 23, 24, 25, 26, 27, 28, 30, 31, 32, 33, 34, 
+35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 53, 54, 55, 56, 
+57, 58, 59, 61, 63, 64, 65, 66, 67, 68, 69, 70, 72, 73, 74, 75, 77, 78, 79, 80, 81, 
+83, 87, 88, 91, 92, 93, 94, 95, 97, 100, 101, 103, 104, 105, 106, 107, 108, 110, 
+111, 112, 113, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 127, 129, 131,
+132, 133, 135, 138, 139, 141, 142, 143, 144, 146, 147, 150, 151, 154, 155, 156, 158,
+160, 161, 162, 163, 164, 165, 167, 173, 183, 184, 186, 187, 191, 193, 199, 200, 203,
+207, 209, 212, 214, 217, 218, 219, 223, 224, 225, 228, 247, 271, 364, 374 }
+> tamagawa[1];
+1
+> tamagawa[2];
+
+>> tamagawa[2];
+           ^
+Runtime error in '[]': Value for given index is not set
+
+> tamagawa[3];
+16
+> tamagawa[8];
+1
+> tamagawa[12];
+1
+> for i in Keys(tamaagawa) do 
+for> print IntegerToString(i) * "      " *IntegerToString(tamagawa[i]));
+
+>> print IntegerToString(i) * "      " *IntegerToString(tamagawa[i]));
+                                                                    ^
+User error: bad syntax
+> for i in Keys(tamaagawa) do                                        
+for> print IntegerToString(i) * "      " * IntegerToString(tamagawa[i]); 
+for> end for;
+
+>> for i in Keys(tamaagawa) do 
+                 ^
+User error: Identifier 'tamaagawa' has not been declared or assigned
+> for i in Keys(tamagawa) do                                         
+for> print IntegerToString(i) * "      " * IntegerToString(tamagawa[i]);
+for> end for;                                                           
+1      1
+158      2
+3      16
+160      2
+161      1
+162      2
+163      2
+164      1
+8      1
+165      1
+167      4
+12      1
+14      1
+15      2
+16      1
+173      2
+19      1
+20      1
+21      2
+23      1
+24      1
+25      1
+26      4
+183      1
+27      2
+184      1
+28      2
+186      1
+30      1
+187      1
+31      4
+32      1
+33      1
+34      2
+191      1
+35      3
+36      3
+193      1
+37      2
+38      5
+39      1
+40      1
+41      4
+42      2
+199      1
+43      5
+200      1
+44      1
+45      5
+46      1
+203      1
+47      1
+48      3
+49      4
+50      3
+207      1
+364      1
+51      3
+209      1
+53      1
+54      1
+212      1
+55      2
+56      3
+214      1
+57      4
+58      2
+59      4
+217      2
+374      1
+218      1
+61      1
+219      1
+63      3
+64      1
+65      2
+223      1
+66      4
+224      1
+67      5
+225      1
+68      2
+69      4
+70      1
+228      1
+72      2
+73      3
+74      2
+75      1
+77      3
+78      1
+79      2
+80      2
+81      1
+83      2
+87      3
+88      1
+247      1
+91      6
+92      1
+93      2
+94      2
+95      2
+97      1
+100      2
+101      2
+103      2
+104      1
+105      1
+106      1
+107      1
+108      1
+110      1
+111      6
+112      2
+113      2
+271      1
+115      2
+116      4
+117      2
+118      2
+119      1
+120      1
+121      2
+122      2
+123      3
+124      1
+125      2
+127      3
+129      2
+131      2
+132      1
+133      2
+135      1
+138      2
+139      2
+141      1
+142      1
+143      1
+144      1
+146      1
+147      1
+150      1
+151      1
+154      2
+155      2
+156      1
+
+
+
+
+Shape:     0    Number:   6
+Shape:     127    Number:   1
+Shape:     1    Number:   6
+Shape:     2    Number:   8
+Shape:     129    Number:   1
+Shape:     3    Number:   7
+Shape:     4    Number:   11
+Shape:     5    Number:   16
+Shape:     6    Number:   16
+Shape:     7    Number:   36
+Shape:     8    Number:   10
+Shape:     9    Number:   9
+Shape:     136    Number:   1
+Shape:     10    Number:   8
+Shape:     11    Number:   9
+Shape:     139    Number:   1
+Shape:     12    Number:   19
+Shape:     13    Number:   6
+Shape:     14    Number:   15
+Shape:     15    Number:   8
+Shape:     16    Number:   12
+Shape:     143    Number:   1
+Shape:     17    Number:   10
+Shape:     18    Number:   9
+Shape:     19    Number:   12
+Shape:     20    Number:   8
+Shape:     21    Number:   7
+Shape:     22    Number:   7
+Shape:     23    Number:   14
+Shape:     151    Number:   1
+Shape:     24    Number:   3
+Shape:     25    Number:   9
+Shape:     152    Number:   2
+Shape:     26    Number:   4
+Shape:     27    Number:   14
+Shape:     28    Number:   2
+Shape:     155    Number:   1
+Shape:     29    Number:   5
+Shape:     30    Number:   3
+Shape:     31    Number:   4
+Shape:     32    Number:   3
+Shape:     160    Number:   1
+Shape:     33    Number:   5
+Shape:     34    Number:   10
+Shape:     161    Number:   1
+Shape:     35    Number:   13
+Shape:     36    Number:   10
+Shape:     37    Number:   5
+Shape:     38    Number:   5
+Shape:     39    Number:   4
+Shape:     166    Number:   1
+Shape:     40    Number:   6
+Shape:     41    Number:   3
+Shape:     42    Number:   3
+Shape:     43    Number:   5
+Shape:     44    Number:   3
+Shape:     45    Number:   8
+Shape:     46    Number:   6
+Shape:     47    Number:   3
+Shape:     48    Number:   4
+Shape:     49    Number:   2
+Shape:     50    Number:   4
+Shape:     177    Number:   1
+Shape:     51    Number:   1
+Shape:     52    Number:   5
+Shape:     53    Number:   2
+Shape:     54    Number:   4
+Shape:     55    Number:   2
+Shape:     56    Number:   1
+Shape:     57    Number:   5
+Shape:     58    Number:   1
+Shape:     59    Number:   7
+Shape:     60    Number:   3
+Shape:     63    Number:   2
+Shape:     64    Number:   3
+Shape:     66    Number:   1
+Shape:     67    Number:   3
+Shape:     68    Number:   3
+Shape:     69    Number:   4
+Shape:     70    Number:   2
+Shape:     71    Number:   5
+Shape:     72    Number:   2
+Shape:     73    Number:   4
+Shape:     74    Number:   1
+Shape:     75    Number:   5
+Shape:     76    Number:   2
+Shape:     77    Number:   1
+Shape:     78    Number:   1
+Shape:     79    Number:   1
+Shape:     80    Number:   1
+Shape:     82    Number:   1
+Shape:     85    Number:   1
+Shape:     86    Number:   2
+Shape:     88    Number:   1
+Shape:     89    Number:   1
+Shape:     91    Number:   1
+Shape:     92    Number:   1
+Shape:     94    Number:   2
+Shape:     95    Number:   3
+Shape:     96    Number:   1
+Shape:     97    Number:   1
+Shape:     100    Number:   2
+Shape:     101    Number:   1
+Shape:     102    Number:   1
+Shape:     106    Number:   1
+Shape:     234    Number:   1
+Shape:     109    Number:   2
+Shape:     110    Number:   1
+Shape:     117    Number:   1
+Shape:     118    Number:   1
+Shape:     121    Number:   2
+Shape:     124    Number:   1

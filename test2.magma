@@ -1,0 +1,30 @@
+tamagawa := AssociativeArray();
+for i:=1 to 3 do
+	count := 0;
+	while count lt 200 do
+		polya := poly(Random(1,4*i),p);
+		polyb := poly(Random(1,6*i),p);
+		a := R!polya;
+		b :=R!polyb;
+		a;
+		b;
+		if 4*a^3 + 27*b^2 ne 0 then 
+			E := EllipticCurve([K!a,K!b]);
+			if squarefree(a,b) and Discriminant(E) ne 0 then 
+				if findheight(a,b) gt 0 then 
+					sh := shape(a,b); //returns list of shapes of selmer elements 
+					count := count + 1;
+					count;
+				end if;
+
+				for j:= 1 to #sh do
+					if IsDefined(tamagawa,sh[j]) then 
+						tamagawa[sh[j]] := tamagawa[sh[j]] + 1;
+					else 
+						tamagawa[sh[j]] := 1;
+					end if;
+				end for;
+			end if;
+		end if;
+	end while;
+end for;

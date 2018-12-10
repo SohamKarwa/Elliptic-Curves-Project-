@@ -1,0 +1,51 @@
+heightmax := 1; 
+p := 5; //prime
+F := GF(p);
+K<t> := FunctionField(F);
+R<t> := PolynomialRing(F);
+
+
+theorem := function()
+	count := 0;
+	tamagawa := AssociativeArray();
+	for i:=1 to (heightmax) do 
+		polysa := polys(4*i,p);
+		polysb := polys(6*i,p);
+		for polya in polysa do 
+			for polyb in polysb do 
+				a:= R!polya;
+				b:= R!polyb;
+				if 4*a^3 + 27*b^2 ne 0 then 
+					E := EllipticCurve([K!a,K!b]);
+					if squarefree(a,b) and Discriminant(E) ne 0 then 
+						if findheight(a,b) le heightmax and findheight(a,b) gt 0 then 
+							sh := shape(a,b); //returns list of shapes of selmer elements 
+							count := count + 1;
+							count;
+							a;
+							b;
+						end if;
+
+						for j:= 1 to #sh do
+							if IsDefined(tamagawa,sh[j]) then 
+								tamagawa[sh[j]] := tamagawa[sh[j]] + 1;
+							else 
+								tamagawa[sh[j]] := 1;
+							end if;
+						end for;
+
+					end if;
+				end if;
+			end for;
+		end for;
+	end for; 
+	return tamagawa;
+end function;
+
+
+
+
+
+
+
+			

@@ -1,0 +1,48 @@
+p := 5;
+F := GF(p);
+K<t> := FunctionField(F);
+
+tinversemap := hom<K ->K | t^(-1)>;
+
+infcoef := function(l)
+		count:= 1;
+		hyperfcoefinf := [];
+		for c in l do
+			hyperfcoefinf := Append(hyperfcoefinf,tinversemap(l[count]));
+			count :=count +1;
+		end for;
+		return hyperfcoefinf;
+end function;
+
+	
+
+shape := function(a,b)
+	E:= EllipticCurve([K!a, K!b]);
+	twodesc:= TwoDescent(E);
+	shs := [1..#twodesc];
+	count := 1;
+	for quadf in twodesc do
+		model := GenusOneModel(quadf);
+		hyperf := HyperellipticPolynomials(HyperellipticCurve(model));
+		hyperf;
+		hyperfcoef := Coefficients(hyperf);
+		hyperfcoef; //list of coefficents of hyperf - polynomials in t 
+		hyperfcoefinf := infcoef(hyperfcoef); //uniformizer at infinity is s = 1/t 
+
+		P<x> := PolynomialRing(K); 
+
+		f:= P!hyperfcoefinf; //polynomial with t replaced by 1/t 
+		hf := HyperellipticCurve(f);
+		f:= GenusOneModel(f); //converts f into binary quartic form 
+		f,transform:= Minimise(f); //the form of quadf is impacting the shape here 
+		info := Tuple(transform);
+		mat := info[2];
+		sh := Determinant(mat);
+		sh := Degree(sh);
+		shs[count] := sh;
+		count := count + 1;
+	end for;
+	return shs;
+end function;
+
+
